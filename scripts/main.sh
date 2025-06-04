@@ -12,6 +12,10 @@ OPT_COPY_TO_CLIPBOARD="$(get_tmux_option "@pass-copy-to-clipboard" "off")"
 OPT_HIDE_PREVIEW="$(get_tmux_option "@pass-hide-preview" "off")"
 OPT_HIDE_PW_FROM_PREVIEW="$(get_tmux_option "@pass-hide-pw-from-preview" "off")"
 OPT_DISABLE_SPINNER="$(get_tmux_option "@pass-enable-spinner" "on")"
+OPT_FZF_KEYMAPS="$(get_tmux_option "@pass-fzf-keymaps" "enter=paste, alt-enter=user, ctrl-e=edit, ctrl-d=delete, tab=preview, alt-space=otp")"
+OPT_SHOW_FZF_KEYMAPS="$(get_tmux_option "@pass-show-fzf-keymaps" "on")"
+
+OPT_FZF_KEYMAPS="$(echo "$OPT_FZF_KEYMAPS" | tr -s '[:space:]' ' ')" # normalization
 
 spinner_pid=""
 
@@ -93,9 +97,28 @@ main() {
   local sel
   local passwd
   local login
-  local header='enter=paste, alt-enter=user, ctrl-e=edit, ctrl-d=delete, tab=preview, alt-space=otp'
+  local header
+  local header_lines=0
   local preview_hidden
   local preview_cmd
+  local binds
+
+  declare -A expects=()
+  IFS=',' read -ra pairs <<< "$OPT_FZF_KEYMAPS"
+  for pair in "${pairs[@]}"; do
+    local key="${pair%%=*}"; key="${key// /}"
+    local value="${pair#*=}"; value="${value// /}"
+    if [[ "$value" == "preview" ]]; then
+      binds="$binds --bind=$key:toggle-preview"
+    else
+      expects["$key"]="$value"
+    fi
+  done
+
+  if [[ "x$OPT_SHOW_FZF_KEYMAPS" == "xon" ]]; then
+    header="$OPT_FZF_KEYMAPS"
+    header_lines=1
+  fi
 
   if [[ "x$OPT_HIDE_PREVIEW" == "xon" ]]; then
     preview_hidden='--preview-window=hidden'
@@ -111,16 +134,15 @@ main() {
   items="$(get_items)"
   spinner_stop
 
-  sel="$(echo "$items" | \
+  sel="$(printf '%s\n%s\n' "$header" "$items" | grep -v '^$' | \
     fzf \
       --inline-info --no-multi \
       --tiebreak=begin \
       --preview="$preview_cmd" \
       $preview_hidden \
-      --bind=tab:toggle-preview \
-      --header="$header" \
-      --bind=alt-enter:accept \
-      --expect=enter,ctrl-e,ctrl-d,ctrl-c,esc,alt-enter,alt-space)"
+      --header-lines=$header_lines \
+      $binds --expect="$(IFS=, echo "${!expects[@]}" | tr ' ' ',')" \
+  )"
 
   if [ $? -gt 0 ]; then
     echo "error: unable to complete command - check/report errors above"
@@ -132,9 +154,9 @@ main() {
   key=$(head -1 <<< "$sel")
   text=$(tail -n +2 <<< "$sel")
 
-  case $key in
+  case ${expects[$key]} in
 
-    enter)
+    paste)
       spinner_start "Fetching password"
       passwd="$(get_password "$text")"
       spinner_stop
@@ -147,7 +169,7 @@ main() {
       fi
       ;;
 
-    alt-enter)
+    user)
       spinner_start "Fetching username"
       login="$(get_login "$text")"
       spinner_stop
@@ -159,7 +181,7 @@ main() {
       fi
       ;;
 
-    alt-space)
+    otp)
       spinner_start "Fetching otp"
       otp="$(get_otp "$text")"
       spinner_stop
@@ -172,11 +194,11 @@ main() {
       fi
       ;;
 
-    ctrl-e)
+    edit)
       pass edit "$text"
       ;;
 
-    ctrl-d)
+    delete)
       pass rm "$text"
       ;;
 
