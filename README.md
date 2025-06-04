@@ -66,6 +66,8 @@ you'll need to source again your `~/.tmux.conf` file.
 * [@pass-hide-pw-from-preview](#pass-hide-pw-from-preview)
 * [@pass-hide-preview](#pass-hide-preview)
 * [@pass-enable-spinner](#pass-enable-spinner)
+* [@pass-fzf-keymaps](#pass-fzf-keymaps)
+* [@pass-show-fzf-keymaps](#pass-show-fzf-keymaps)
 
 ### @pass-key
 
@@ -153,6 +155,35 @@ To disable spinner:
 
 ```bash
 set -g @pass-enable-spinner off
+```
+
+### @pass-fzf-keymaps
+
+```
+default: enter=paste, alt-enter=user, ctrl-e=edit, ctrl-d=delete, tab=preview, alt-space=otp
+```
+
+Change, disable, or add fzf keymaps.
+
+For example, to disable editing and deleting, and
+use <kbd>Ctrl</kbd>-<kbd>t</kbd> for toggling preview:
+
+```bash
+set -g @pass-keymaps "enter=paste, alt-enter=user, ctrl-t=preview, alt-space=otp"
+```
+
+### @pass-show-fzf-keymaps
+
+```
+default: on
+```
+
+Show a header with list of keymaps.
+
+To disable:
+
+```bash
+set -g @pass-show-keymaps off
 ```
 
 ## Acknowledgements
