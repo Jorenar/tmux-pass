@@ -96,6 +96,7 @@ main() {
   local header='enter=paste, alt-enter=user, ctrl-e=edit, ctrl-d=delete, tab=preview, alt-space=otp'
   local preview_hidden
   local preview_cmd
+  local fzf_ret
 
   if [[ "x$OPT_HIDE_PREVIEW" == "xon" ]]; then
     preview_hidden='--preview-window=hidden'
@@ -122,7 +123,10 @@ main() {
       --bind=alt-enter:accept \
       --expect=enter,ctrl-e,ctrl-d,ctrl-c,esc,alt-enter,alt-space)"
 
-  if [ $? -gt 0 ]; then
+  fzf_ret=$?
+  if [ $fzf_ret -eq 130 ]; then
+      exit
+  elif [ $fzf_ret -gt 0 ]; then
     echo "error: unable to complete command - check/report errors above"
     echo "You can also set the fzf path in options (see readme)."
     read -r
