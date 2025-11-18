@@ -2,7 +2,7 @@
 
 > Quick password-store browser with preview using fzf in tmux.
 
-![tmux-pass preview](http://rafi.io/img/project/tmux-pass/preview.gif)
+![tmux-pass preview](preview.gif)
 
 ## Features
 
