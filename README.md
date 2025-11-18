@@ -8,7 +8,7 @@
 
 - Browse your password-store using fzf
 - Preview password in a tmux split (optional)
-- Detects pbcopy (macOS), xclip or xsel (Linux)
+- Detects `pbcopy`, `wl-copy`, `xsel`, `xclip`
 - Copy password (<kbd>Enter</kbd>)
 - Copy username (<kbd>Alt</kbd>-<kbd>Enter</kbd>)
 - OTP support (<kbd>Alt</kbd>-<kbd>Space</kbd>)

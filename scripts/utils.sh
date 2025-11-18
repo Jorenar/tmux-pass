@@ -13,6 +13,8 @@ is_cmd_exists () {
 get_cmd () {
     if command -v pbcopy >/dev/null; then
         echo 'pbcopy'
+    elif command -v wl-copy >/dev/null; then
+        echo 'wl-copy'
     elif command -v xsel >/dev/null ; then
         echo 'xsel -b'
     elif command -v xclip >/dev/null; then
