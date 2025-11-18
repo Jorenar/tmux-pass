@@ -188,7 +188,8 @@ set -g @pass-show-keymaps off
 
 ## Acknowledgements
 
-This plugin is inspired by [tmux-1password](https://github.com/yardnsm/tmux-1password).
+This plugin is a fork of [rafi/tmux-pass](https://github.com/rafi/tmux-pass),
+inspired by [tmux-1password](https://github.com/yardnsm/tmux-1password).
 
 ## License
 
