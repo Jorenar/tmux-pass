@@ -1,50 +1,33 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-# ------------------------------------------------------------------------------
-
-get_tmux_option() {
-  local option=$1
-  local default_value=$2
-  local option_value; option_value=$(tmux show-option -gqv "$option")
-
-  if [[ -z "$option_value" ]]; then
-    echo "$default_value"
-  else
-    echo "$option_value"
-  fi
+get_tmux_option () {
+    val="$(tmux show-option -gqv "$1")"
+    [ -z "$val" ] && echo "$2" || echo "$val"
 }
 
-display_message() {
-  tmux display-message "tmux-pass: $1"
+is_cmd_exists () {
+    command -v "$1" > /dev/null 2>&1
+    return $?
 }
 
-is_cmd_exists() {
-  command -v "$1" &> /dev/null
-  return $?
+get_cmd () {
+    if command -v pbcopy >/dev/null; then
+        echo 'pbcopy'
+    elif command -v xsel >/dev/null ; then
+        echo 'xsel -b'
+    elif command -v xclip >/dev/null; then
+        echo 'xclip -i'
+    else
+        return 1
+    fi
 }
 
-copy_to_clipboard() {
-  if [[ "$(uname)" == "Darwin" ]] && is_cmd_exists "pbcopy"; then
-    echo -n -- "$1" | pbcopy
-  elif [[ "$(uname)" == "Linux" ]] && is_cmd_exists "xsel"; then
-    echo -n -- "$1" | xsel -b
-  elif [[ "$(uname)" == "Linux" ]] && is_cmd_exists "xclip"; then
-    echo -n -- "$1" | xclip -i
-  else
-    return 1
-  fi
+copy_to_clipboard () {
+    cmd="$(get_cmd)" || return 1
+    printf '%s' "$1" | $cmd
 }
 
 clear_clipboard() {
-  local -r SEC="$1"
-
-  if [[ "$(uname)" == "Darwin" ]] && is_cmd_exists "pbcopy"; then
-    tmux run-shell -b "sleep $SEC && echo '' | pbcopy"
-  elif [[ "$(uname)" == "Linux" ]] && is_cmd_exists "xsel"; then
-    tmux run-shell -b "sleep $SEC && xsel -c -b"
-  elif [[ "$(uname)" == "Linux" ]] && is_cmd_exists "xclip"; then
-    tmux run-shell -b "sleep $SEC && echo '' | xclip -i"
-  else
-    return 1
-  fi
+    cmd="$(get_cmd)" || return 1
+    tmux run-shell -b "sleep $1 && echo '' | $cmd"
 }
