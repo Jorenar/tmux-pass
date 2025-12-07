@@ -8,11 +8,6 @@ get_tmux_option () {
     [ -z "$val" ] && echo "$2" || echo "$val"
 }
 
-is_cmd_exists () {
-    command -v "$1" > /dev/null 2>&1
-    return $?
-}
-
 get_cmd () {
     if command -v pbcopy >/dev/null; then
         echo 'pbcopy'
