@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2025       Jorenar
+# Copyright (C) 2018-2025  Rafael Bodill
 
 CURRENT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
